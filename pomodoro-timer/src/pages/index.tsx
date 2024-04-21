@@ -70,7 +70,13 @@ const ModalSettings: React.FC<ModalSettingsProps> = ({
         <HStack>
           {Object.entries(tempSettings).map(([key, value]) => (
             <Box key={key}>
-              <Text fontWeight="semibold">{key}</Text>
+              <Text fontWeight="semibold">
+                {key === "workMinutes"
+                  ? "Work"
+                  : key === "shortBreakMinutes"
+                  ? "Short Break"
+                  : "Long Break"}
+              </Text>
               <NumberInput
                 step={1}
                 defaultValue={value}
