@@ -118,9 +118,9 @@ const ModalSettings: React.FC<ModalSettingsProps> = ({
 export default function Home() {
   const {isOpen, onOpen, onClose} = useDisclosure();
   const [settings, setSettings] = useState<Settings>({
-    workMinutes: 1,
-    shortBreakMinutes: 1,
-    longBreakMinutes: 2,
+    workMinutes: 25,
+    shortBreakMinutes: 5,
+    longBreakMinutes: 15,
   });
   const [tempSettings, setTempSettings] = useState<Settings>({...settings});
   const {
