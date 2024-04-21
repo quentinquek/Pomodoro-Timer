@@ -1,20 +1,178 @@
 // Nextjs Imports
 import Head from "next/head";
-// import Image from "next/image";
-// import {Inter} from "next/font/google";
-
-// Style imports
-// import styles from "@/styles/Home.module.css";
 
 // ChakraUI Imports
-import {Container} from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Container,
+  Divider,
+  Editable,
+  EditableInput,
+  EditablePreview,
+  HStack,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  NumberDecrementStepper,
+  NumberIncrementStepper,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  Text,
+  VStack,
+  useDisclosure,
+} from "@chakra-ui/react";
+
+// Icon Imports
+import {EditIcon, SettingsIcon} from "@chakra-ui/icons";
 
 // Component Imports
-import Timer from "../../components/Timer";
+import Timer from "../components/Timer";
+import {useEffect, useState} from "react";
+import useTimer from "@/hooks/useTimer";
+import MiniStats from "@/components/MiniStats";
 
-// const inter = Inter({subsets: ["latin"]});
+// Other imports
+import {Settings} from "@/types";
+
+interface ModalSettingsProps {
+  isOpen: boolean;
+  onClose: () => void;
+  settings: Settings;
+  tempSettings: Settings;
+  handleInputChange: (key: keyof Settings, valueString: string) => void;
+  handleSave: () => void;
+}
+
+const ModalSettings: React.FC<ModalSettingsProps> = ({
+  isOpen,
+  onClose,
+  settings,
+  tempSettings,
+  handleInputChange,
+  handleSave,
+}) => (
+  <Modal
+    isOpen={isOpen}
+    onClose={onClose}
+    isCentered
+  >
+    <ModalOverlay />
+    <ModalContent margin="12px">
+      <ModalHeader>Settings</ModalHeader>
+      <ModalCloseButton />
+      <ModalBody>
+        <HStack>
+          {Object.entries(tempSettings).map(([key, value]) => (
+            <Box key={key}>
+              <Text fontWeight="semibold">{key}</Text>
+              <NumberInput
+                step={1}
+                defaultValue={value}
+                min={1}
+                max={60}
+                marginY="6px"
+                onChange={(valueString) =>
+                  handleInputChange(key as keyof Settings, valueString)
+                }
+              >
+                <NumberInputField />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
+              <Text
+                color="gray.500"
+                fontWeight="medium"
+              >
+                Minutes
+              </Text>
+            </Box>
+          ))}
+        </HStack>
+      </ModalBody>
+      <ModalFooter>
+        <Button
+          variant="ghost"
+          onClick={onClose}
+        >
+          Cancel
+        </Button>
+        <Button
+          colorScheme="teal"
+          onClick={handleSave}
+        >
+          Save
+        </Button>
+      </ModalFooter>
+    </ModalContent>
+  </Modal>
+);
 
 export default function Home() {
+  const {isOpen, onOpen, onClose} = useDisclosure();
+  const [settings, setSettings] = useState<Settings>({
+    workMinutes: 1,
+    shortBreakMinutes: 1,
+    longBreakMinutes: 2,
+  });
+  const [tempSettings, setTempSettings] = useState<Settings>({...settings});
+  const {
+    sessionType,
+    timeLeft,
+    isActive,
+    toggleTimer,
+    resetTimer,
+    workCycle,
+    shortBreakCycle,
+    longBreakCycle,
+  } = useTimer(settings);
+
+  // Format time; e.g., 25:00
+  const formatTime = (seconds: number): string => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
+  };
+
+  // For Circular Progress Bar
+  const percentageRemaining =
+    100 -
+    (timeLeft /
+      (sessionType === "Work"
+        ? settings.workMinutes
+        : sessionType === "Short Break"
+        ? settings.shortBreakMinutes
+        : settings.longBreakMinutes) /
+      60) *
+      100;
+
+  const handleInputChange = (key: keyof Settings, valueString: string) => {
+    const value = parseInt(valueString);
+    setTempSettings((prevSettings) => ({
+      ...prevSettings,
+      [key]: isNaN(value) ? 0 : value,
+    }));
+  };
+
+  const handleSave = () => {
+    setSettings((prevSettings) => ({
+      ...prevSettings,
+      ...tempSettings,
+    }));
+    onClose();
+  };
+
+  useEffect(() => {
+    resetTimer();
+  }, [settings]);
+
   return (
     <>
       <Head>
@@ -34,35 +192,115 @@ export default function Home() {
       </Head>
       <>
         <Container
-          // bgImage="url('/images/waves.jpg')"
-          // bgSize="cover"
+          bgImage="url('/images/mountain2.jpg')"
+          bgSize="cover"
           maxW="full"
           centerContent
           h="100vh"
-          justifyContent="center"
+          justifyContent="space-between"
         >
-          <video
-            autoPlay
-            muted
-            loop
-            className="video-bg"
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              zIndex: -1
-            }}
+          <Box>
+            <Text
+              fontSize={{base: "2xl", sm: "4xl"}}
+              fontWeight="bold"
+              color="white"
+              marginTop="24px"
+            >
+              Pomodoro Timer
+            </Text>
+          </Box>
+          <VStack spacing="24px">
+            <Editable
+              placeholder="Please enter a task"
+              bgColor="rgba(0,0,0,0.6)"
+              paddingX="12px"
+              paddingY="4px"
+              borderRadius="3xl"
+              color="white"
+              fontWeight="bold"
+              alignItems="center"
+              display="flex"
+              isDisabled={false}
+            >
+              <EditIcon />
+              <EditablePreview marginLeft="4px" />
+              <EditableInput />
+            </Editable>
+            <Timer
+              percentageRemaining={percentageRemaining}
+              displayTime={formatTime(timeLeft)}
+              sessionType={sessionType}
+            />
+            <HStack spacing="12px">
+              <Button onClick={toggleTimer}>
+                {isActive
+                  ? "Pause"
+                  : percentageRemaining === 0
+                  ? "Start"
+                  : "Continue"}
+              </Button>
+              {!isActive && percentageRemaining > 0 && (
+                <Button onClick={resetTimer}>Reset</Button>
+              )}
+            </HStack>
+          </VStack>
+          <Box
+            bgColor="rgba(0,0,0,0.7)"
+            color="white"
+            borderRadius="xl"
+            paddingX="12px"
+            paddingTop="12px"
+            paddingBottom="4px"
+            marginBottom="12px"
+            maxWidth="440px"
+            width="95%"
           >
-            <source src="/images/fireplace.mp4" type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
-          <Timer
-            workMinutes={25}
-            shortBreakMinutes={5}
-          />
+            <HStack
+              spacing={3}
+              marginBottom="6px"
+            >
+              <MiniStats
+                label={"Work Cycle"}
+                number={workCycle}
+                text={``}
+              />
+              <Divider
+                height="3rem"
+                orientation="vertical"
+              />
+              <MiniStats
+                label={"Short Break"}
+                number={shortBreakCycle}
+                text={``}
+              />
+              <Divider
+                height="3rem"
+                orientation="vertical"
+              />
+              <MiniStats
+                label={"Long Break"}
+                number={longBreakCycle}
+                text={``}
+              />
+            </HStack>
+            <Button
+              leftIcon={<SettingsIcon />}
+              variant="solid"
+              width="100%"
+              marginBottom="8px"
+              onClick={onOpen}
+            >
+              Settings
+            </Button>
+            <ModalSettings
+              isOpen={isOpen}
+              onClose={onClose}
+              settings={settings}
+              tempSettings={tempSettings}
+              handleInputChange={handleInputChange}
+              handleSave={handleSave}
+            />
+          </Box>
         </Container>
       </>
     </>
