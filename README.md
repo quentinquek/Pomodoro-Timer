@@ -2,6 +2,9 @@
 
 The Pomodoro Timer app is a productivity tool designed to help users manage their time effectively using the Pomodoro Technique. It allows users to set customizable work and break intervals to optimize productivity and focus.
 
+## Try It Out Here
+https://quentinquek-pomodoro.netlify.app/
+
 ## Architecture
 The frontend of the Pomodoro Timer app is built using Next.js, a React framework for server-rendered applications. Chakra UI is used for styling and building UI components, providing a consistent and accessible design system. TypeScript is used to add static typing and improve code maintainability.
 
