@@ -14,7 +14,7 @@ Prerequisites
 - npm or Yarn
 
 ### Getting Started
-1. Clone the repository from GitHub: git clone 
+1. Clone the repository from GitHub: git clone https://github.com/quentinquek/Pomodoro-Timer.git
 2. Navigate to the project directory: cd pomodoro-timer
 3. Install dependencies: npm install
 4. Start the development server: npm run dev
