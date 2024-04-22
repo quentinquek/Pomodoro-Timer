@@ -11,13 +11,13 @@ The frontend of the Pomodoro Timer app is built using Next.js, a React framework
 ## Setup Instructions
 Prerequisites
 - Node.js
-- npm or Yarn
+- npm
 
 ### Getting Started
-1. Clone the repository from GitHub: git clone https://github.com/quentinquek/Pomodoro-Timer.git
-2. Navigate to the project directory: cd pomodoro-timer
-3. Install dependencies: npm install
-4. Start the development server: npm run dev
+1. Clone the repository from GitHub: `git clone https://github.com/quentinquek/Pomodoro-Timer.git`
+2. Navigate to the project directory: `cd pomodoro-timer`
+3. Install dependencies: `npm install`
+4. Start the development server: `npm run dev`
 5. Open your browser and visit http://localhost:3000 to view the app.
 
 ## Usage Guide
